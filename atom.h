@@ -53,8 +53,8 @@ class atom{
     friend void nesimu(double delta_t,double r_verlet,int steps,std::vector<atom>& atomall);
     friend double hydropressure(std::vector<atom> atomall);
     friend double autocorrelate(double delta_t,double r_verlet,int steps,double t,std::vector<atom>& atomall);
-  	friend void diffusive(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps);
-    friend void montecarlo(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps);
+    friend void diffusive(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps);
+    friend void montecarlo(double delta_t,double r_verlet,double temp,std::vector<atom>& atomall,int steps);
 	private:
 		double mass;
 		double x;
@@ -65,6 +65,8 @@ class atom{
     std::vector<double> stresstensor;
 		std::vector<double> speed;
 };
+//copy one to two//
+void assign(std::vector<atom>& one,std::vector<atom>&);
 int count(std::vector<atom> all,atom& input,double r);
 void print_radial_dis(double,double,std::vector<atom>&,std::string);
 std::vector<double>& operator +=(std::vector<double>& one,std::vector<double>& two);

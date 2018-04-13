@@ -28,9 +28,5 @@ int main(){
         atomall[temp].setf(initial);
        }
     //**********************end initialize ****************************************//
-      cool(delta_t,r_verlet,atomall);
-      double t=5;
-      ntsimu(delta_t,r_verlet,t,atomall,30000);
-      int steps=50000;
-      std::cout<<steps<<" "<<autocorrelate(delta_t,r_verlet,steps,5,atomall)<<std::endl;
+   montecarlo(delta_t,r_verlet,5,atomall,30000);
 }

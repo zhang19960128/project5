@@ -95,6 +95,7 @@ atom& atom::operator =(atom& one){
 	this->y=one.y;
 	this->speed=one.speed;
   this->force=one.force;
+  this->neighbor=one.neighbor;
 	return *this;
 }
 double allener(std::vector<atom>& allatom){
@@ -334,6 +335,12 @@ void settemp(double t,std::vector<atom>& allatom){
    }
   }
 }
+void assign(std::vector<atom>& one,std::vector<atom>& two){
+   int n=one.size();
+   for(size_t i=0;i<n;i++){
+      two[i]=one[i];
+   }
+}
 bool accept(double energydiff,double temp){
     double possi;
     double rand_num;
@@ -351,6 +358,34 @@ bool accept(double energydiff,double temp){
         return true;
     }
 }
-void montecarlo(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps){
-    
+void montecarlo(double delta_t,double r_verlet,double temp,std::vector<atom>& atomall,int steps){
+   int n=atomall.size();
+   double r_shell_initial=r_verlet-r_cut;
+   double r_shell=r_shell_initial;
+   double e_old=0.0;
+   double e_new=0.0;
+   int count=0;
+   double maxdis=0.0;
+   std::vector<atom> old(n,atomall[0]);
+   updatelist(atomall,r_verlet);
+   assign(atomall,old);
+   for(size_t i=0;i<steps;i++){
+      e_old=allpotential(atomall);
+      assign(atomall,old);
+      maxdis=verletrun(delta_t,atomall);
+      e_new=allpotential(atomall);
+      std::cout<<e_new<<std::endl;
+      if(accept(e_new-e_old,temp)){
+         if(maxdis*2>r_shell){
+            updatelist(atomall,r_verlet);
+            r_shell=r_shell_initial;
+         }
+         else{
+            r_shell=r_shell-2*maxdis;
+         }
+      }
+      else{
+         assign(old,atomall);
+      }
+    }
 }
