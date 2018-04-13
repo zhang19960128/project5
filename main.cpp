@@ -9,7 +9,7 @@ int main(){
 	//***********************initialize the system********units SI**************************//
     int size=20;
     int N=size*size;
-    double delta_t=0.2*1e-14;//units s, typically this is about 0.02 ps.
+    double delta_t=0.2*1e-14;//units s, typically this is about 0.002 ps.
     std::vector<atom> atomall(N);
     int temp;
     double r_verlet=1.2*r_cut;

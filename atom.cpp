@@ -346,7 +346,8 @@ bool accept(double energydiff,double temp){
     double rand_num;
     if(energydiff>0){
         possi=exp(-1*energydiff/temp/Kb);
-        rand_num=((double)rand()/(RAND_MAX));
+				std::cout<<possi<<std::endl;
+				rand_num=((double)rand()/(RAND_MAX));
         if(possi>rand_num){
             return true;
         }
@@ -374,7 +375,7 @@ void montecarlo(double delta_t,double r_verlet,double temp,std::vector<atom>& at
       assign(atomall,old);
       maxdis=verletrun(delta_t,atomall);
       e_new=allpotential(atomall);
-      std::cout<<e_new<<std::endl;
+      std::cout<<e_new-e_old<<std::endl;
       if(accept(e_new-e_old,temp)){
          if(maxdis*2>r_shell){
             updatelist(atomall,r_verlet);
@@ -383,9 +384,13 @@ void montecarlo(double delta_t,double r_verlet,double temp,std::vector<atom>& at
          else{
             r_shell=r_shell-2*maxdis;
          }
+				 count=0;
       }
       else{
-         assign(old,atomall);
+				count++;
+        assign(old,atomall);
+				freeze(atomall);
       }
+			if(count>50) break;
     }
 }
