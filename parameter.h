@@ -10,4 +10,5 @@
 #define Pi 3.141592653
 #define NA (6.022*1e23)
 #define Kb (1.3806852*1e-23)
+#define evtoj (1.60218e-19)
 #endif

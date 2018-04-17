@@ -244,27 +244,42 @@ void montecarlo(std::vector<atom>& atomall,double zeta,double temp,int steps){
    double randx=genrand();
    double randy=genrand();
    double r_verlet=1.2*r_cut;
+   double move=0.0;
+   double maxdis=0.0;
    double r_accum=0.0;
+   std::fstream fs;
+   fs.open("info.txt",std::fstream::out);
    std::vector<double> posit_before(2,0.0);
    std::vector<double> posit_now(2,0.0);
    updatelist(atomall,r_verlet);
-   for(size_t i=0;i<steps;i++){
-      tick=i%size;
-      randx=(genrand()-0.5)*zeta;
-      randy=(genrand()-0.5)*zeta;
-      e_old=e_now;
-      atomall[tick].x=randx+atomall[tick].x;
-      atomall[tick].y=randy+atomall[tick].y;
-      e_now=allpotential(atomall);
-      if(accept(e_now-e_old,temp)){
-       num=0;
-       updatelist(atomall,r_verlet);
-      }
-      else{
-       num++;
-       atomall[tick].x=atomall[tick].x-randx;
-       atomall[tick].y=atomall[tick].y-randy;
-      }
-      std::cout<<e_now<<std::endl;
-  }
+   int loop=steps/size;
+   for(size_t m=0;m<loop;m++){
+       for(size_t j=0;j<size;j++){
+           randx=(genrand()-0.5)*zeta;
+           randy=(genrand()-0.5)*zeta;
+           move=sqrt(randx*randx+randy*randy);
+           e_old=e_now;
+           atomall[j].x=randx+atomall[j].x;
+           atomall[j].y=randy+atomall[j].y;
+           e_now=allpotential(atomall);
+           if(accept(e_now-e_old,temp)){
+            num=0;
+            std::cout<<e_now/evtoj<<std::endl;
+                }
+            else{
+              num++;
+              atomall[j].x=atomall[j].x-randx;
+              atomall[j].y=atomall[j].y-randy;
+              std::cout<<e_now/evtoj<<std::endl;
+             }
+           }
+       r_accum=r_accum+move*2;
+       if(r_accum>r_verlet-r_cut){
+         updatelist(atomall,r_verlet);
+         r_accum=0.0;
+           }
+   }
+   for(size_t j=0;j<size;j++){
+    fs<<atomall[j].getx()<<" "<<atomall[j].gety()<<std::endl;
+   }
  }

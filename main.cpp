@@ -9,7 +9,6 @@ int main(){
 	//***********************initialize the system********units SI**************************//
     int size=20;
     int N=size*size;
-    double delta_t=0.2*1e-14;//units s, typically this is about 0.002 ps.
     std::vector<atom> atomall(N);
     int temp;
     double r_verlet=1.2*r_cut;
@@ -28,5 +27,5 @@ int main(){
         atomall[temp].setf(initial);
        }
     //**********************end initialize ****************************************
-   montecarlo(atomall,0.1*r_min,5,100000);
+   montecarlo(atomall,0.1*r_min,5,1500000);
 }
