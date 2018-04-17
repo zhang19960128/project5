@@ -264,13 +264,13 @@ void montecarlo(std::vector<atom>& atomall,double zeta,double temp,int steps){
            e_now=allpotential(atomall);
            if(accept(e_now-e_old,temp)){
             num=0;
-            std::cout<<e_now/evtoj<<std::endl;
+            std::cout<<"acc"<<std::endl;
                 }
             else{
               num++;
               atomall[j].x=atomall[j].x-randx;
               atomall[j].y=atomall[j].y-randy;
-              std::cout<<e_now/evtoj<<std::endl;
+              std::cout<<"rej"<<std::endl;
              }
            }
        r_accum=r_accum+move*2;

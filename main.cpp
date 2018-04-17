@@ -27,5 +27,5 @@ int main(){
         atomall[temp].setf(initial);
        }
     //**********************end initialize ****************************************
-   montecarlo(atomall,0.1*r_min,5,1500000);
+   montecarlo(atomall,0.1*r_min,5,2000000);
 }
