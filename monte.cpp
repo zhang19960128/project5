@@ -1,7 +1,7 @@
 #include "monte.h"
 #include "parameter.h"
-#include <cmath>
 #include <string>
+#include "myrandom.h"
 #include <vector>
 #include <fstream>
 #include <stdlib.h>
@@ -98,14 +98,7 @@ atom& atom::operator =(atom& one){
   this->neighbor=one.neighbor;
 	return *this;
 }
-double allener(std::vector<atom>& allatom){
-    double poten=allpotential(allatom);
-    double kinet=0.0;
-    for(size_t i=0;i<allatom.size();i++){
-        kinet=kinet+0.5*(allatom[i].mass)*(allatom[i].speed[0]*allatom[i].speed[0]+allatom[i].speed[1]*allatom[i].speed[1]);
-    }
-    return kinet+poten;
-}
+
 //the force exerted on one by two
 std::vector<double> str_tensor(atom& one,atom& two){
     std::vector<double> a(4,0);
@@ -126,30 +119,13 @@ std::vector<double> str_tensor(atom& one,atom& two){
     a[3]=deri*(one.y-two.y)*(one.y-two.y)/r;
     return a;
 }
-std::vector<double> cal_force(atom& one,atom& two){
-   std::vector<double> a(2,0);
-   double r=distance(one,two);
-   double deri=0;
-   if(r<r0){
-      deri=24*eps/r*(-2*pow(sigma/r,12)+pow(sigma/r,6));
-   }
-   else if(r<r_cut){
-      deri=3*A*(r-r_cut)*(r-r_cut)+2*B*(r-r_cut);
-   }
-   else{
-      deri=0.0;
-   }
-   a[0]=-1*deri*(one.x-two.x)/r;
-   a[1]=-1*deri*(one.y-two.y)/r;
-   return a;
-}
 std::vector<double>& operator +=(std::vector<double>& one,std::vector<double>& two){
    for(size_t i=0;i<one.size();i++){
       one[i]=one[i]+two[i];
    }
    return one;
 }
-double hydropressure(std::vector<atom> atomall){
+double hydropressure(std::vector<atom>& atomall){
     int size=atomall.size();
     double xx=0.0;
     double yy=0.0;
@@ -158,6 +134,17 @@ double hydropressure(std::vector<atom> atomall){
         yy=yy+atomall[i].stresstensor[3];
     }
     return xx+yy;
+}
+
+void updatelist(std::vector<atom>& input,double r_set){
+   int size=input.size();
+   for(size_t i=0;i<size;i++){
+      input[i].neighbor.clear();
+      }
+   for(size_t i=0;i<size;i++)
+      for(size_t j=0;j<size;j++){
+         if(i==j) continue;
+         if(distance(input[i],input[j])<r_set && distance(input[i],input[j])>0.0){                                                               input[i].neighbor.push_back(j);                                         }                                                          }
 }
 void updatetensor(std::vector<atom>& atomall){
     std::vector<double> temp(4,0);
@@ -236,8 +223,7 @@ bool accept(double energydiff,double temp){
     double rand_num;
     if(energydiff>0){
         possi=exp(-1*energydiff/temp/Kb);
-				std::cout<<possi<<std::endl;
-				rand_num=((double)rand()/(RAND_MAX));
+        rand_num=genrand();
         if(possi>rand_num){
             return true;
         }
@@ -249,4 +235,36 @@ bool accept(double energydiff,double temp){
         return true;
     }
 }
-
+void montecarlo(std::vector<atom>& atomall,double zeta,double temp,int steps){
+   double e_old=0.0;
+   double e_now=0.0;
+   int size=atomall.size();
+   int tick;
+   int num=0;//count the numbers that are rejected continuesly
+   double randx=genrand();
+   double randy=genrand();
+   double r_verlet=1.2*r_cut;
+   double r_accum=0.0;
+   std::vector<double> posit_before(2,0.0);
+   std::vector<double> posit_now(2,0.0);
+   updatelist(atomall,r_verlet);
+   for(size_t i=0;i<steps;i++){
+      tick=i%size;
+      randx=(genrand()-0.5)*zeta;
+      randy=(genrand()-0.5)*zeta;
+      e_old=e_now;
+      atomall[tick].x=randx+atomall[tick].x;
+      atomall[tick].y=randy+atomall[tick].y;
+      e_now=allpotential(atomall);
+      if(accept(e_now-e_old,temp)){
+       num=0;
+       updatelist(atomall,r_verlet);
+      }
+      else{
+       num++;
+       atomall[tick].x=atomall[tick].x-randx;
+       atomall[tick].y=atomall[tick].y-randy;
+      }
+      std::cout<<e_now<<std::endl;
+  }
+ }
