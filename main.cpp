@@ -1,6 +1,6 @@
 #include<iostream>
 #include "parameter.h"
-#include "atom.h"
+#include "monte.h"
 #include <cmath>
 #include <vector>
 #include <list>
@@ -28,5 +28,4 @@ int main(){
         atomall[temp].setf(initial);
        }
     //**********************end initialize ****************************************//
-   montecarlo(delta_t,r_verlet,5,atomall,30000);
 }
